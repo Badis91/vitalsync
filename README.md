@@ -137,3 +137,12 @@ Dans **Settings → Secrets and variables → Actions** :
 ## Auteur
 
 Projet réalisé dans le cadre de l'examen EFREI — Épreuve E6 CI/CD conteneurisée.
+
+## Variables d'environnement
+
+| Variable            | Description               | Exemple          |
+|---------------------|---------------------------|------------------|
+| `POSTGRES_DB`       | Nom de la base de données | vitalsync        |
+| `POSTGRES_USER`     | Utilisateur PostgreSQL    | vitalsync_user   |
+| `POSTGRES_PASSWORD` | Mot de passe PostgreSQL   | SecurePass123!   |
+| `NODE_ENV`          | Environnement Node.js     | production       |

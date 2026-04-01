@@ -25,3 +25,8 @@ USER appuser
 
 EXPOSE 3000
 CMD ["node", "server.js"]
+
+# Métadonnées de l'image
+LABEL maintainer="Badis91 <badis91@efrei.fr>"
+LABEL version="1.0.0"
+LABEL description="VitalSync Backend API"

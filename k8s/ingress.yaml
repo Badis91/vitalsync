@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vitalsync-ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+spec:
+  rules:
+    - host: vitalsync.local
+      http:
+        paths:
+          # Route / vers le frontend
+          - path: /()(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: vitalsync-frontend
+                port:
+                  number: 80
+          # Route /api vers le backend
+          - path: /api(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: vitalsync-backend
+                port:
+                  number: 3000

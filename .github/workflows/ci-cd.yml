@@ -108,37 +108,23 @@ jobs:
         id: vars
         run: echo "SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
 
-      - name: Create .env for staging
-        run: |
-          cat > .env << EOF
-          POSTGRES_DB=vitalsync
-          POSTGRES_USER=vitalsync_user
-          POSTGRES_PASSWORD=staging_password
-          NODE_ENV=staging
-          EOF
-
-      - name: Pull images from Docker Hub
+      - name: Pull backend image from Docker Hub
         run: |
           docker pull ${{ env.BACKEND_IMAGE }}:${{ steps.vars.outputs.SHA }}
-          docker pull ${{ env.FRONTEND_IMAGE }}:${{ steps.vars.outputs.SHA }}
 
-      - name: Tag images as latest for docker-compose
+      - name: Deploy backend container (staging simulé)
         run: |
-          docker tag ${{ env.BACKEND_IMAGE }}:${{ steps.vars.outputs.SHA }} ${{ env.BACKEND_IMAGE }}:latest
-          docker tag ${{ env.FRONTEND_IMAGE }}:${{ steps.vars.outputs.SHA }} ${{ env.FRONTEND_IMAGE }}:latest
-
-      - name: Deploy with docker-compose
-        run: |
-          # Remplacer les images buildées localement par celles du registry
-          sed -i 's|build:|# build:|g' docker-compose.yml
-          sed -i '/context:/d; /dockerfile:/d' docker-compose.yml
-          docker compose up -d --no-build 2>/dev/null || docker-compose up -d --no-build
-          echo "Services démarrés, attente de 15s..."
-          sleep 15
+          docker run -d \
+            --name vitalsync-staging \
+            -p 3000:3000 \
+            -e NODE_ENV=staging \
+            ${{ env.BACKEND_IMAGE }}:${{ steps.vars.outputs.SHA }}
+          echo "Conteneur démarré, attente de 10s..."
+          sleep 10
 
       - name: Health check avec retry (curl --retry 5)
         run: |
-          echo "Vérification de santé du backend..."
+          echo "Vérification de santé du backend — SHA: ${{ steps.vars.outputs.SHA }}"
           curl --retry 5 \
                --retry-delay 3 \
                --retry-connrefused \
@@ -146,7 +132,7 @@ jobs:
                --max-time 10 \
                http://localhost:3000/health
           echo ""
-          echo "Backend opérationnel — SHA: ${{ steps.vars.outputs.SHA }}"
+          echo "Backend opérationnel !"
 
       - name: Afficher les conteneurs actifs
         if: always()

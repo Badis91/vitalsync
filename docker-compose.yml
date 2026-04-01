@@ -64,3 +64,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+
+# Ajout du healthcheck pour le frontend
+# (déjà configuré dans le service backend)

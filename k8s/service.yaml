@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vitalsync-backend
+  namespace: default
+  labels:
+    app: vitalsync
+    tier: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: vitalsync
+    tier: backend
+  ports:
+    - name: http
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vitalsync-frontend
+  namespace: default
+  labels:
+    app: vitalsync
+    tier: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: vitalsync
+    tier: frontend
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80

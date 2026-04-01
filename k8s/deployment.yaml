@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vitalsync-backend
+  namespace: default
+  labels:
+    app: vitalsync
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vitalsync
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: vitalsync
+        tier: backend
+    spec:
+      containers:
+        - name: backend
+          image: te1ks9/vitalsync-backend:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: vitalsync-db-secret
+                  key: db-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: vitalsync-db-secret
+                  key: db-password
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vitalsync-frontend
+  namespace: default
+  labels:
+    app: vitalsync
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vitalsync
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: vitalsync
+        tier: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: te1ks9/vitalsync-frontend:latest
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"

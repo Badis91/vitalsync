@@ -1,7 +1,5 @@
 node_modules
-test/
 .env
-.eslintrc.json
 .git
 *.log
 coverage/

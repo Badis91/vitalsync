@@ -1,4 +1,4 @@
-# ─── Stage 1: install + test ───────────────────────────────────────────────────
+# ─── Stage 1: install + lint + test ───────────────────────────────────────────
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -6,7 +6,11 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
-COPY . .
+# Copier le code source ET les tests (avant dockerignore)
+COPY server.js .
+COPY test/ ./test/
+COPY .eslintrc.json .
+
 RUN npm run lint || true
 RUN npm test
 
@@ -18,7 +22,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 
-COPY server.js .
+# Copier uniquement le code de production depuis le builder
+COPY --from=builder /app/server.js .
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser

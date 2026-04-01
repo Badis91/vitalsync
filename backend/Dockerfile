@@ -1,3 +1,19 @@
+# =============================================================================
+# Multi-stage build — Pourquoi deux stages ?
+#
+# SÉCURITÉ : Le stage "builder" contient les devDependencies (Jest, ESLint,
+# supertest), les fichiers de test et les outils de build. Ces éléments ne
+# doivent JAMAIS se retrouver en production : ils augmentent la surface d'attaque
+# (vulnérabilités dans les paquets de dev) et peuvent exposer du code sensible.
+# Le stage "production" repart d'une image vierge et ne copie QUE le binaire
+# final, garantissant qu'aucun outil de dev n'est embarqué.
+#
+# TAILLE D'IMAGE : node:20-alpine avec toutes les devDependencies pèse ~450 MB.
+# L'image de production finale (sans devDeps, sans tests) pèse ~202 MB, soit
+# une réduction de plus de 55 %. Une image plus légère = téléchargement plus
+# rapide, démarrage plus rapide, moins de stockage sur le registry.
+# =============================================================================
+
 # ─── Stage 1: install + lint + test ───────────────────────────────────────────
 FROM node:20-alpine AS builder
 
